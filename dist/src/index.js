@@ -14,13 +14,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const apollo_server_1 = require("apollo-server");
 const schema_1 = require("./schema");
-const type_orm_config_1 = __importDefault(require("./type-orm.config"));
+const typeorm_config_1 = __importDefault(require("./typeorm.config"));
 const dotenv_1 = __importDefault(require("dotenv"));
-const auth_1 = require("./middlewares/auth");
+const auth_1 = require("./middleware/auth");
 dotenv_1.default.config();
 const boot = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const conn = yield type_orm_config_1.default.initialize();
+        const conn = yield typeorm_config_1.default.initialize();
         const server = new apollo_server_1.ApolloServer({
             schema: schema_1.schema,
             // context: ({ req }): Context => ({

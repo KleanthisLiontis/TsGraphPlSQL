@@ -1,9 +1,9 @@
 import { ApolloServer } from "apollo-server";
 import { schema } from "./schema";
-import typeOrmConfig from "./type-orm.config";
+import typeOrmConfig from "./typeorm.config";
 import { Context } from "./types/Context";
 import dotenv from "dotenv";
-import { auth } from "./middlewares/auth";
+import { auth } from "./middleware/auth";
 
 dotenv.config();
 
