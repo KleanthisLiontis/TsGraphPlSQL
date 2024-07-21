@@ -1,5 +1,6 @@
-import { DataSource } from "typeorm"
+import { DataSource } from "typeorm";
 
 export type Context = {
-    dbconn: DataSource;
-}
+    conn: DataSource;
+    userId: number | undefined;
+};

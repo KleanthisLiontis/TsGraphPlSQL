@@ -1,8 +1,7 @@
-import { objectType, extendType, nonNull, floatArg, stringArg } from "nexus";
+import { extendType, floatArg, nonNull, objectType, stringArg } from "nexus";
 import { User } from "../entities/User";
 import { Product } from "../entities/Product";
 import { Context } from "../types/Context";
-import { NexusGenObjects } from "../../nexus-typegern";
 
 export const ProductType = objectType({
     name: "Product",
@@ -20,47 +19,65 @@ export const ProductType = objectType({
     },
 });
 
-let products: NexusGenObjects["Product"][] = [
-    {
-        id: 1,
-        name: "Product 1",
-        price: 69.99,
-    },
-    {
-        id: 2,
-        name: "Product 2",
-        price: 13.23,
-    },
-];
+// let products: NexusGenObjects["Product"][] = [
+//   {
+//     id: 1,
+//     name: "Product 1",
+//     price: 15.99,
+//   },
+//   {
+//     id: 2,
+//     name: "Product 2",
+//     price: 10.99,
+//   },
+// ];
 
 export const ProductsQuery = extendType({
     type: "Query",
     definition(t) {
         t.nonNull.list.nonNull.field("products", {
             type: "Product",
-            resolve(_parent, _args, context: Context, _info): Promise<Product[]> {
-                //return Product.find()
-                const { dbconn } = context;
-                return dbconn.query(`select * from product`)
-
+            resolve(_parent, _args, _context: Context, _info): Promise<Product[]> {
+                //const { conn } = context;
+                //return conn.query(`select * from product`);
+                return Product.find();
             },
         });
     },
 });
 
-export const CreateProductMutation = extendType({
+export const ProductMutation = extendType({
     type: "Mutation",
     definition(t) {
+        // t.nonNull.field("createProduct", {
+        //   type: "Product",
+        //   args: {
+        //     name: nonNull(stringArg()),
+        //     price: nonNull(floatArg()),
+        //     creatorId: nonNull(floatArg()),
+        //   },
+        //   resolve(_parent, args, _context, _info): Promise<Product> {
+        //     const { name, price, creatorId } = args;
+        //     return Product.create({ name, price, creatorId }).save();
+        //   },
+        // });
+
         t.nonNull.field("createProduct", {
             type: "Product",
             args: {
                 name: nonNull(stringArg()),
                 price: nonNull(floatArg()),
+                creatorId: nonNull(floatArg()),
             },
-            resolve(_parent, args, _context, _info): Promise<Product> {
+            resolve(_parent, args, context: Context, _info): Promise<Product> {
                 const { name, price } = args;
-                // console.log(products);
-                return Product.create({ name, price }).save();
+                const { userId } = context;
+
+                if (!userId) {
+                    throw new Error("Can't create product without logging in.");
+                }
+
+                return Product.create({ name, price, creatorId: userId }).save();
             },
         });
     },

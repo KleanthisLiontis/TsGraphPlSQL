@@ -3,32 +3,33 @@ import {
     Column,
     CreateDateColumn,
     Entity,
-    ManyToOne,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
-  } from "typeorm";
-  import { User } from "./User";
-  
-  @Entity()
-  export class Product extends BaseEntity {
+} from "typeorm";
+
+import { Product } from "./Product";
+
+@Entity()
+export class User extends BaseEntity {
     @PrimaryGeneratedColumn()
     id!: number;
-  
+
+    @Column({ unique: true })
+    username!: string;
+
+    @Column({ unique: true })
+    email!: string;
+
     @Column()
-    name!: string;
-  
-    @Column({ type: "decimal" })
-    price!: number;
-  
-    @Column()
-    creatorId!: number;
-  
-    @ManyToOne(() => User, (user) => user.products)
-    creator: User;
-  
+    password!: string;
+
+    @OneToMany(() => Product, (product) => product.creator)
+    products: Product[];
+
     @CreateDateColumn()
     createdAt: Date;
-  
+
     @UpdateDateColumn()
     updatedAt: Date;
-  }
+}

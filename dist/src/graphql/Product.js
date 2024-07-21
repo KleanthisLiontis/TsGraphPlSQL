@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateProductMutation = exports.ProductsQuery = exports.ProductType = void 0;
+exports.ProductMutation = exports.ProductsQuery = exports.ProductType = void 0;
 const nexus_1 = require("nexus");
 const User_1 = require("../entities/User");
 const Product_1 = require("../entities/Product");
@@ -19,44 +19,60 @@ exports.ProductType = (0, nexus_1.objectType)({
         });
     },
 });
-let products = [
-    {
-        id: 1,
-        name: "Product 1",
-        price: 69.99,
-    },
-    {
-        id: 2,
-        name: "Product 2",
-        price: 13.23,
-    },
-];
+// let products: NexusGenObjects["Product"][] = [
+//   {
+//     id: 1,
+//     name: "Product 1",
+//     price: 15.99,
+//   },
+//   {
+//     id: 2,
+//     name: "Product 2",
+//     price: 10.99,
+//   },
+// ];
 exports.ProductsQuery = (0, nexus_1.extendType)({
     type: "Query",
     definition(t) {
         t.nonNull.list.nonNull.field("products", {
             type: "Product",
-            resolve(_parent, _args, context, _info) {
-                //return Product.find()
-                const { dbconn } = context;
-                return dbconn.query(`select * from product`);
+            resolve(_parent, _args, _context, _info) {
+                //const { conn } = context;
+                //return conn.query(`select * from product`);
+                return Product_1.Product.find();
             },
         });
     },
 });
-exports.CreateProductMutation = (0, nexus_1.extendType)({
+exports.ProductMutation = (0, nexus_1.extendType)({
     type: "Mutation",
     definition(t) {
+        // t.nonNull.field("createProduct", {
+        //   type: "Product",
+        //   args: {
+        //     name: nonNull(stringArg()),
+        //     price: nonNull(floatArg()),
+        //     creatorId: nonNull(floatArg()),
+        //   },
+        //   resolve(_parent, args, _context, _info): Promise<Product> {
+        //     const { name, price, creatorId } = args;
+        //     return Product.create({ name, price, creatorId }).save();
+        //   },
+        // });
         t.nonNull.field("createProduct", {
             type: "Product",
             args: {
                 name: (0, nexus_1.nonNull)((0, nexus_1.stringArg)()),
                 price: (0, nexus_1.nonNull)((0, nexus_1.floatArg)()),
+                creatorId: (0, nexus_1.nonNull)((0, nexus_1.floatArg)()),
             },
-            resolve(_parent, args, _context, _info) {
+            resolve(_parent, args, context, _info) {
                 const { name, price } = args;
-                // console.log(products);
-                return Product_1.Product.create({ name, price }).save();
+                const { userId } = context;
+                if (!userId) {
+                    throw new Error("Can't create product without logging in.");
+                }
+                return Product_1.Product.create({ name, price, creatorId: userId }).save();
             },
         });
     },
